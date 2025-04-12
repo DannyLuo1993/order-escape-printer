@@ -1,5 +1,6 @@
 
 import CryptoJS from 'crypto-js';
+import { Order } from '@/types';
 
 // XPrinter API configuration
 const API_BASE_URL = 'https://open.xpyun.net/api/openapi/xprinter';
@@ -59,7 +60,7 @@ export const printOrder = async (orderContent: string): Promise<boolean> => {
 };
 
 // Function to format order as a printable receipt
-export const formatOrderForPrinting = (order: any): string => {
+export const formatOrderForPrinting = (order: Order): string => {
   let receipt = '';
   
   // Add header
@@ -87,7 +88,7 @@ export const formatOrderForPrinting = (order: any): string => {
   // Add order items
   receipt += '<B>ITEMS:</B>\n\n';
   
-  order.items.forEach((item: any, index: number) => {
+  order.items.forEach((item, index) => {
     receipt += `${index + 1}. ${item.name} x${item.quantity}\n`;
     receipt += `   $${(item.price * item.quantity).toFixed(2)}\n`;
     if (item.notes) {
