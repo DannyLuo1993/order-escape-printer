@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,9 +10,9 @@ import { useToast } from '@/components/ui/use-toast';
 import { useCart } from '@/context/CartContext';
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import CartItem from '@/components/CartItem';
-import { formatOrderForPrinting, printOrder } from '@/services/xprinterService';
 import { v4 as uuidv4 } from 'uuid';
 import { Order } from '@/types';
+import { submitOrder } from '@/services/orderService';
 
 const Checkout: React.FC = () => {
   const { cartItems, cartTotal, clearCart, customerInfo, updateCustomerInfo, orderType, setOrderType } = useCart();
@@ -76,13 +75,10 @@ const Checkout: React.FC = () => {
         createdAt: new Date().toISOString()
       };
       
-      // Format order for printing
-      const printContent = formatOrderForPrinting(order);
+      // Submit order to server - the server will handle printing
+      const result = await submitOrder(order);
       
-      // Send order to printer
-      const printResult = await printOrder(printContent);
-      
-      if (printResult) {
+      if (result.success) {
         // Success
         toast({
           title: "Order submitted successfully!",
@@ -97,8 +93,8 @@ const Checkout: React.FC = () => {
       } else {
         // Error
         toast({
-          title: "Printing error",
-          description: "There was an error sending your order to the printer. Please try again.",
+          title: "Order processing error",
+          description: "There was an error processing your order. Please try again.",
           variant: "destructive"
         });
       }
