@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import CartItem from '@/components/CartItem';
 import { v4 as uuidv4 } from 'uuid';
 import { Order } from '@/types';
-import { submitOrder } from '@/services/orderService';
+import { submitOrder, sendPrintRequest } from '@/services/orderService';
 
 const Checkout: React.FC = () => {
   const { cartItems, cartTotal, clearCart, customerInfo, updateCustomerInfo, orderType, setOrderType } = useCart();
@@ -71,19 +72,30 @@ const Checkout: React.FC = () => {
         customer: customerInfo,
         total: cartTotal,
         orderType,
-        status: 'pending', // Using a valid literal from the Order type
+        status: 'pending',
         createdAt: new Date().toISOString()
       };
       
-      // Submit order to server - the server will handle printing
+      // Submit order to server
       const result = await submitOrder(order);
       
       if (result.success) {
-        // Success
-        toast({
-          title: "Order submitted successfully!",
-          description: `Your order #${order.id} has been sent to the kitchen.`,
-        });
+        // If order submission is successful, send print request to server
+        const printResult = await sendPrintRequest(order);
+        
+        if (printResult) {
+          // If printing is successful
+          toast({
+            title: "Order submitted successfully!",
+            description: `Your order #${order.id} has been sent to the kitchen and printed.`,
+          });
+        } else {
+          // If printing fails but order was submitted
+          toast({
+            title: "Order submitted successfully!",
+            description: `Your order #${order.id} has been sent to the kitchen, but there was an issue with printing.`,
+          });
+        }
         
         // Clear cart
         clearCart();
@@ -91,7 +103,7 @@ const Checkout: React.FC = () => {
         // Navigate to confirmation page
         navigate('/confirmation', { state: { order } });
       } else {
-        // Error
+        // Error with order submission
         toast({
           title: "Order processing error",
           description: "There was an error processing your order. Please try again.",
