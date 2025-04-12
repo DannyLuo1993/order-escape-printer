@@ -80,20 +80,20 @@ const Checkout: React.FC = () => {
       const result = await submitOrder(order);
       
       if (result.success) {
-        // If order submission is successful, send print request to server
-        const printResult = await sendPrintRequest(order);
+        // If order submission is successful, send a fixed "Hello World" print request to server
+        const printResult = await sendPrintRequest();
         
         if (printResult) {
           // If printing is successful
           toast({
             title: "Order submitted successfully!",
-            description: `Your order #${order.id} has been sent to the kitchen and printed.`,
+            description: `Your order #${order.id} has been sent to the kitchen and a test receipt has been printed.`,
           });
         } else {
           // If printing fails but order was submitted
           toast({
             title: "Order submitted successfully!",
-            description: `Your order #${order.id} has been sent to the kitchen, but there was an issue with printing.`,
+            description: `Your order #${order.id} has been sent to the kitchen, but there was an issue with printing the test receipt.`,
           });
         }
         
