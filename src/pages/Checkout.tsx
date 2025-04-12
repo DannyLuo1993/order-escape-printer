@@ -13,6 +13,7 @@ import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import CartItem from '@/components/CartItem';
 import { formatOrderForPrinting, printOrder } from '@/services/xprinterService';
 import { v4 as uuidv4 } from 'uuid';
+import { Order } from '@/types';
 
 const Checkout: React.FC = () => {
   const { cartItems, cartTotal, clearCart, customerInfo, updateCustomerInfo, orderType, setOrderType } = useCart();
@@ -65,13 +66,13 @@ const Checkout: React.FC = () => {
     
     try {
       // Create order object
-      const order = {
+      const order: Order = {
         id: uuidv4().substring(0, 8).toUpperCase(),
         items: cartItems,
         customer: customerInfo,
         total: cartTotal,
         orderType,
-        status: 'pending',
+        status: 'pending', // Using a valid literal from the Order type
         createdAt: new Date().toISOString()
       };
       
